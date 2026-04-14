@@ -33,9 +33,10 @@ internal sealed class TemplateManager : IAsyncDisposable
     /// Ensures the template database exists and matches the cache key.
     /// Safe to call concurrently — only one caller performs work; others wait.
     /// Returns true if the template was (re)created, false if it was reused from cache.
+    /// If cacheKey is null, the template is always rebuilt (no caching).
     /// </summary>
     internal async Task<bool> EnsureTemplateAsync(
-        string cacheKey,
+        string? cacheKey,
         MigrateDelegate? migrate,
         SeedDelegate? seed,
         CancellationToken ct)
@@ -56,7 +57,7 @@ internal sealed class TemplateManager : IAsyncDisposable
     }
 
     private async Task<bool> CreateOrVerifyTemplateAsync(
-        string cacheKey,
+        string? cacheKey,
         MigrateDelegate? migrate,
         SeedDelegate? seed,
         CancellationToken ct)
@@ -68,15 +69,23 @@ internal sealed class TemplateManager : IAsyncDisposable
 
         if (exists)
         {
-            var storedKey = await admin.GetDatabaseCommentAsync(_templateName, ct);
-            if (storedKey == cacheKey)
+            // If cacheKey is null, always rebuild (no caching)
+            if (cacheKey is null)
             {
-                // Cache hit — template is valid, nothing to do
-                return false;
+                await DropTemplateAsync(admin, ct);
             }
+            else
+            {
+                var storedKey = await admin.GetDatabaseCommentAsync(_templateName, ct);
+                if (storedKey == cacheKey)
+                {
+                    // Cache hit — template is valid, nothing to do
+                    return false;
+                }
 
-            // Cache miss — drop and recreate
-            await DropTemplateAsync(admin, ct);
+                // Cache miss — drop and recreate
+                await DropTemplateAsync(admin, ct);
+            }
         }
 
         // Create fresh template
@@ -102,10 +111,13 @@ internal sealed class TemplateManager : IAsyncDisposable
             await templateConn.ExecuteNonQueryAsync("VACUUM FULL", ct);
         }
 
-        // Store cache key and mark as template
-        var escapedKey = cacheKey.Replace("'", "''");
-        await admin.ExecuteNonQueryAsync(
-            $"""COMMENT ON DATABASE "{_templateName}" IS '{escapedKey}' """, ct);
+        // Store cache key (if provided) and mark as template
+        if (cacheKey is not null)
+        {
+            var escapedKey = cacheKey.Replace("'", "''");
+            await admin.ExecuteNonQueryAsync(
+                $"""COMMENT ON DATABASE "{_templateName}" IS '{escapedKey}' """, ct);
+        }
 
         await admin.ExecuteNonQueryAsync(
             $"""ALTER DATABASE "{_templateName}" WITH ALLOW_CONNECTIONS false IS_TEMPLATE true """, ct);
