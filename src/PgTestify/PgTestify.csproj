@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>PgTestify</PackageId>
+    <RootNamespace>PgTestify</RootNamespace>
+    <Description>PostgreSQL test database isolation with automatic pooling and dirty detection. Core package — no EF Core dependency.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql" Version="[9.0.0,)" />
+  </ItemGroup>
+
+</Project>

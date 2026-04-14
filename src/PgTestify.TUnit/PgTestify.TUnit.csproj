@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>PgTestify.TUnit</PackageId>
+    <RootNamespace>PgTestify.TUnit</RootNamespace>
+    <Description>TUnit integration for PgTestify — test fixtures, base classes, per-test database lifecycle.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PgTestify.EfCore\PgTestify.EfCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit.Core" Version="[0.20.0,)" />
+  </ItemGroup>
+
+</Project>

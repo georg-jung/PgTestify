@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>PgTestify.EfCore</PackageId>
+    <RootNamespace>PgTestify.EfCore</RootNamespace>
+    <Description>EF Core integration for PgTestify — DbContext lifecycle, IDbContextFactory, migrations.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PgTestify\PgTestify.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="[9.0.0,)" />
+  </ItemGroup>
+
+</Project>

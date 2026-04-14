@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PgTestify.EfCore/PgTestify.EfCore.csproj" />
+    <Project Path="src/PgTestify.TUnit/PgTestify.TUnit.csproj" />
+    <Project Path="src/PgTestify/PgTestify.csproj" />
+  </Folder>
+</Solution>
