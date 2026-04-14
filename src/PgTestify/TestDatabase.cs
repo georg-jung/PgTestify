@@ -91,10 +91,11 @@ public sealed class TestDatabase : IAsyncDisposable
             {
                 await _connection.ExecuteNonQueryAsync("SELECT pg_stat_force_next_flush()");
             }
-            catch { /* Ignore if PG < 15 or permission denied */ }
-
-            await _connection.DisposeAsync();
-            _connection = null;
+            finally
+            {
+                await _connection.DisposeAsync();
+                _connection = null;
+            }
         }
 
         // Now return or discard asynchronously (non-blocking for the test)
