@@ -83,8 +83,12 @@ internal sealed class TemplateManager : IAsyncDisposable
         await admin.ExecuteNonQueryAsync(
             $"""CREATE DATABASE "{_templateName}" """, ct);
 
-        var templateConnStr = SqlHelper.BuildConnectionString(
-            _maintenanceConnectionString, _templateName);
+        var builder = new NpgsqlConnectionStringBuilder(_maintenanceConnectionString)
+        {
+            Database = _templateName,
+            Pooling = false
+        };
+        var templateConnStr = builder.ToString();
 
         await using (var templateConn = await SqlHelper.OpenConnectionAsync(templateConnStr, ct))
         {

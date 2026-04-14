@@ -73,9 +73,8 @@ public sealed class PgFixture<TContext> : IAsyncDisposable
 
             coreDelegate = async (connection, token) =>
             {
-                var connStr = connection.ConnectionString;
-                await using var ctx = ContextFactory.CreateContext<TContext>(
-                    connStr, effectiveNpgsqlConfig);
+                await using var ctx = ContextFactory.CreateContextWithConnection<TContext>(
+                    connection, effectiveNpgsqlConfig);
                 await effectiveMigrate(ctx, token);
             };
 
@@ -83,9 +82,8 @@ public sealed class PgFixture<TContext> : IAsyncDisposable
             {
                 seedDelegate = async (connection, token) =>
                 {
-                    var connStr = connection.ConnectionString;
-                    await using var ctx = ContextFactory.CreateContext<TContext>(
-                        connStr, effectiveNpgsqlConfig);
+                    await using var ctx = ContextFactory.CreateContextWithConnection<TContext>(
+                        connection, effectiveNpgsqlConfig);
                     await effectiveSeed(ctx, token);
                 };
             }
@@ -95,8 +93,8 @@ public sealed class PgFixture<TContext> : IAsyncDisposable
             // Default: just run migrations
             coreDelegate = async (connection, token) =>
             {
-                var connStr = connection.ConnectionString;
-                await using var ctx = ContextFactory.CreateContext<TContext>(connStr, effectiveNpgsqlConfig);
+                await using var ctx = ContextFactory.CreateContextWithConnection<TContext>(
+                    connection, effectiveNpgsqlConfig);
                 await ctx.Database.MigrateAsync(token);
             };
         }

@@ -32,11 +32,14 @@ public abstract class PgTest<TFixture, TContext>
     where TContext : DbContext
 {
     /// <summary>
-    /// The shared fixture, injected by TUnit via ClassDataSource.
-    /// Declared here for discoverability; derived classes can re-declare with the attribute
-    /// if needed, but TUnit will automatically inject if the attribute is on the fixture class itself.
+    /// The shared fixture, injected by TUnit.
     /// </summary>
-    public TFixture DbFixture { get; set; } = null!;
+    public TFixture DbFixture { get; }
+
+    protected PgTest(TFixture fixture)
+    {
+        DbFixture = fixture;
+    }
 
     /// <summary>The per-test database handle. Available during and after <see cref="SetUpDatabase"/>.</summary>
     protected TestDatabase<TContext> Db { get; private set; } = null!;

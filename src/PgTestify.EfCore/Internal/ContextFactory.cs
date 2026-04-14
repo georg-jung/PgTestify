@@ -40,6 +40,24 @@ internal static class ContextFactory
         return CreateInstance<TContext>(builder.Options);
     }
 
+    internal static TContext CreateContextWithConnection<TContext>(
+        System.Data.Common.DbConnection connection,
+        Action<NpgsqlDbContextOptionsBuilder>? configureNpgsql = null,
+        QueryTrackingBehavior? tracking = null)
+        where TContext : DbContext
+    {
+        var builder = new DbContextOptionsBuilder<TContext>();
+        builder.UseNpgsql(connection, npgsql =>
+        {
+            configureNpgsql?.Invoke(npgsql);
+        });
+
+        if (tracking.HasValue)
+            builder.UseQueryTrackingBehavior(tracking.Value);
+
+        return CreateInstance<TContext>(builder.Options);
+    }
+
     internal static TContext CreateInstance<TContext>(DbContextOptions<TContext> options)
         where TContext : DbContext
     {

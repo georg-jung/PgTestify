@@ -4,4 +4,7 @@
     <Project Path="src/PgTestify.TUnit/PgTestify.TUnit.csproj" />
     <Project Path="src/PgTestify/PgTestify.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PgTestify.IntegrationTests/PgTestify.IntegrationTests.csproj" />
+  </Folder>
 </Solution>

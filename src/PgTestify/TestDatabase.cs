@@ -82,9 +82,17 @@ public sealed class TestDatabase : IAsyncDisposable
         if (_disposed) return;
         _disposed = true;
 
-        // Close the primary connection first — this triggers stats flush on commit/abort
+        // Close the primary connection first. We call pg_stat_force_next_flush()
+        // before closing to ensure the PostgreSQL backend flushes its local tuple counters 
+        // to shared memory immediately, making them visible to our admin connection.
         if (_connection is not null)
         {
+            try
+            {
+                await _connection.ExecuteNonQueryAsync("SELECT pg_stat_force_next_flush()");
+            }
+            catch { /* Ignore if PG < 15 or permission denied */ }
+
             await _connection.DisposeAsync();
             _connection = null;
         }
