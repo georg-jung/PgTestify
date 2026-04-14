@@ -48,7 +48,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
 
     - name: 📦 Pack
-      run: dotnet pack -c Release -o ./artifacts /p:ContinuousIntegrationBuild=true
+      run: dotnet pack -c Release -o ./artifacts
 
     - name: 📢 NuGet artifacts
       id: upload
