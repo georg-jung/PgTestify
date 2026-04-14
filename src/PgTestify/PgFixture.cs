@@ -126,7 +126,7 @@ public sealed class PgFixture : IAsyncDisposable
         return DbNamer.DefaultTemplateName(assembly, "fixture");
     }
 
-    private string ResolveCacheKey()
+    private string? ResolveCacheKey()
     {
         if (!string.IsNullOrWhiteSpace(_options.CacheKey))
             return _options.CacheKey;
@@ -139,7 +139,9 @@ public sealed class PgFixture : IAsyncDisposable
             return File.GetLastWriteTimeUtc(location).ToString("O");
         }
 
-        // Fallback for single-file publish / no physical location
-        return assembly.GetName().Version?.ToString() ?? "unknown";
+        // Fallback for single-file publish / no physical location:
+        // Return null to disable caching rather than cache with a generic key
+        // that would never rebuild (e.g., "unknown" or assembly version)
+        return null;
     }
 }
