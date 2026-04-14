@@ -129,13 +129,21 @@ internal sealed class DatabasePool : IAsyncDisposable
             // Dirty or pool full — drop and optionally replenish
             _ = Task.Run(async () =>
             {
-                await _template.DropDatabasesAsync([dbName]);
-                _allOwned.TryRemove(dbName, out _);
-
-                // Replenish if pool is below minimum
-                if (_available.Reader.Count < _minPoolSize)
+                try
                 {
-                    await CreateAndEnqueueAsync();
+                    await _template.DropDatabasesAsync([dbName]);
+                    _allOwned.TryRemove(dbName, out _);
+
+                    // Replenish if pool is below minimum
+                    if (_available.Reader.Count < _minPoolSize)
+                    {
+                        await CreateAndEnqueueAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Trace.TraceWarning(
+                        $"PgTestify: error dropping database '{dbName}': {ex.Message}");
                 }
             });
         }

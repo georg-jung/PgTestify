@@ -134,6 +134,8 @@ internal sealed class TemplateManager : IAsyncDisposable
         await using var admin = await SqlHelper.OpenConnectionAsync(
             _maintenanceConnectionString, ct);
 
+        List<Exception>? failures = null;
+
         foreach (var name in databaseNames)
         {
             try
@@ -141,11 +143,25 @@ internal sealed class TemplateManager : IAsyncDisposable
                 await admin.ExecuteNonQueryAsync(
                     $"""DROP DATABASE IF EXISTS "{name}" WITH (FORCE) """, ct);
             }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                // Best-effort cleanup — log and continue
-                System.Diagnostics.Trace.TraceWarning($"PgTestify: failed to drop database '{name}': {ex.Message}");
+                (failures ??= new List<Exception>())
+                    .Add(new InvalidOperationException($"Failed to drop database '{name}'.", ex));
             }
+        }
+
+        if (failures is { Count: > 0 })
+        {
+            if (failures.Count == 1)
+            {
+                throw failures[0];
+            }
+
+            throw new AggregateException("Failed to drop one or more databases.", failures);
         }
     }
 
